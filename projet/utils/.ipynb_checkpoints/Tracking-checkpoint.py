@@ -5,6 +5,8 @@ developed by : Jérémy DUFOURMANTELLE and Ethan ABITBOL
 
 """
 
+import numpy as np
+
 class Tracking :
     
     def __init__(self) :
@@ -18,6 +20,8 @@ class Tracking :
         self.max_val = 10.0
         self.step_val = np.array([0.161,0.161])
         self.max_iteration = 300
+        self.observation_space = 4
+        self.action_space = 2
         
     def step(self,action) :
         """
