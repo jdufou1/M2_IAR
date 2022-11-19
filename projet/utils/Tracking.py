@@ -29,15 +29,21 @@ class Tracking :
                  entre l'agent et l'objectif
         """
         self.iteration += 1
+        
+        
+        self.target_angle_value += self.step_val
+        new_position_target = self.Middle + np.array([self.Radius * np.cos(self.target_angle_value[0]),self.Radius * np.sin(self.target_angle_value[1])])
+        euclidian_distance_target = np.sqrt((self.target[0] - new_position_target[0])**2 + (self.target[1] - new_position_target[1])**2)
+        self.target = new_position_target
+        
         vector_director = action - self.agent
         vector_director_normalized = np.linalg.norm(vector_director)
-        future_agent_position = self.agent + (vector_director/vector_director_normalized) * self.step_val
+        future_agent_position = self.agent + (vector_director/vector_director_normalized) * euclidian_distance_target 
         
         if not self.inside_box(future_agent_position) and not self.outside(future_agent_position):
             self.agent = future_agent_position
         
-        self.target_angle_value += self.step_val
-        self.target = self.Middle + np.array([self.Radius * np.cos(self.target_angle_value[0]),self.Radius * np.sin(self.target_angle_value[1])])
+        
         
         squarred_distance = (self.agent[0] - self.target[0])**2 + (self.agent[1] - self.target[1])**2
         
@@ -60,10 +66,10 @@ class Tracking :
         self.iteration = 0
         self.agent = np.array([5.0,5.0])
         self.target = np.array([1.0,4.5])
-        self.target_angle_value = np.array([0.0,0.0])
+        self.target_angle_value = np.array([np.pi,np.pi])
         
         self.Middle = np.array([4.5,4.5])
-        self.Radius = 4
+        self.Radius = 3.5
         
         return np.concatenate((self.agent,self.target))
     
