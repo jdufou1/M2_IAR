@@ -55,7 +55,7 @@ class Tracking :
         else :
             reward = - euclidian_distance
         """ 
-        reward = - squarred_distance # dans le papier, ils utilisent uniquement cette valeur
+        reward = - squarred_distance + np.random.normal(loc=0.0, scale=0.1) # dans le papier, ils utilisent uniquement cette valeur + bruit de 0.1
         
         return np.concatenate((self.agent,self.target)), reward, ( success or self.iteration >= self.max_iteration)
     
