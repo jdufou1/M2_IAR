@@ -12,10 +12,12 @@ class CAC() :
         discount_factor : float,
         sigma : float,
         nb_episode : int,
+        nb_tests : int,
         test_frequency : int,
         env,
         actor_network,
         critic_network,
+        exploration_strategy : str = "gaussian",
         verbose_mode : bool = True
     ) :
         
@@ -24,10 +26,12 @@ class CAC() :
         self.discount_factor = discount_factor
         self.sigma = np.zeros(env.action_space) + sigma
         self.nb_episode = nb_episode
+        self.nb_tests = nb_tests
         self.test_frequency = test_frequency
         self.env = env
         self.actor_network = actor_network
         self.critic_network = critic_network
+        self.exploration_strategy = exploration_strategy
         self.verbose_mode = verbose_mode
         
         self.observation_space = env.observation_space
@@ -42,7 +46,8 @@ class CAC() :
         
     def learning(self) : 
         
-        self.list_rewards = list()
+        self.list_rewards_mean = list()
+        self.list_rewards_std = list()
         
         for episode in range(self.nb_episode) :
         
@@ -56,13 +61,7 @@ class CAC() :
             
                 state_t = torch.as_tensor(state , dtype=torch.float32)
                 
-                action = torch.as_tensor(
-                    np.array(
-                        np.random.normal(loc=self.actor_network(state_t).detach().numpy(),
-                        scale=self.sigma,size=(1,self.action_space))
-                    ),
-                    dtype=torch.float32
-                )[0].detach().numpy() # gaussian exploration
+                action = self.get_action(state_t)
                 
                 new_state, reward, done = self.env.step(action)
                 
@@ -99,16 +98,48 @@ class CAC() :
             # testing
             
             if episode % self.test_frequency == 0 :
-                rewards_test = self.test()
-                self.list_rewards.append(rewards_test)
+                rewards_tests = list()
+                for t in range(self.nb_tests) :
+                    rewards_tests.append(self.test())
+                rewards_tests = np.array(rewards_tests)
+                    
+                self.list_rewards_mean.append(rewards_tests.mean())
+                self.list_rewards_std.append(rewards_tests.std())
                 
                 if self.verbose_mode :
-                    print(f"{episode}/{self.nb_episode} - iteration : {self.iteration} - rewards value test : {rewards_test} - best value : {self.best_value}")
+                    print(f"{episode}/{self.nb_episode} - iteration : {self.iteration} - rewards value test : {rewards_tests.mean()} - best value : {self.best_value}")
                 
-                if self.best_value < rewards_test :
+                if self.best_value < rewards_tests.mean() :
                     self.best_model.load_state_dict(self.actor_network.state_dict())
-                    self.best_value = rewards_test
+                    self.best_value = rewards_tests.mean()
+    
+    
+    def get_action(self,state_t) :
+        epsilon = 0.1
+        if self.exploration_strategy == "gaussian" :
+            return torch.as_tensor(
+                        np.array(
+                            np.random.normal(loc=self.actor_network(state_t).detach().numpy(),
+                            scale=self.sigma,size=(1,self.action_space))
+                        ),
+                        dtype=torch.float32
+                )[0].detach().numpy()
+        elif self.exploration_strategy == "egreedy" :
+            if np.random.rand() > epsilon :
+                return self.actor_network(state_t).detach().numpy()
+            else :
+                return torch.as_tensor(
+                        np.array(
+                            np.random.normal(loc=self.actor_network(state_t).detach().numpy(),
+                            scale=self.sigma,size=(1,self.action_space))
+                        ),
+                        dtype=torch.float32
+                )[0].detach().numpy()
+        else :
+            raise Exception("The exploration strategy must be gaussian or egreedy")
         
+        
+
     def test(self) :  
         
         list_rewards = list()
