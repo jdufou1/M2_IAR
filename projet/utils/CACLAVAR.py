@@ -10,6 +10,9 @@ class CACLAVAR() :
         learning_rate_critic : float,
         learning_rate_actor : float,
         discount_factor : float,
+        epsilon : float,
+        epsilon_min : float,
+        epsilon_decay : float,
         sigma : float,
         nb_episode : int,
         nb_tests : int,
@@ -24,6 +27,9 @@ class CACLAVAR() :
         self.learning_rate_critic = learning_rate_critic
         self.learning_rate_actor = learning_rate_actor
         self.discount_factor = discount_factor
+        self.epsilon = epsilon
+        self.epsilon_min = epsilon_min
+        self.epsilon_decay = epsilon_decay
         self.sigma = np.zeros(env.action_space) + sigma
         self.nb_episode = nb_episode
         self.nb_tests = nb_tests
@@ -50,6 +56,7 @@ class CACLAVAR() :
         
         self.list_rewards_mean = list()
         self.list_rewards_std = list()
+        self.list_iteration = list()
         
         for episode in range(self.nb_episode) :
         
@@ -116,6 +123,7 @@ class CACLAVAR() :
                     
                 self.list_rewards_mean.append(rewards_tests.mean())
                 self.list_rewards_std.append(rewards_tests.std())
+                self.list_iteration.append(self.iteration)
                 
                 if self.verbose_mode :
                     print(f"{episode}/{self.nb_episode} - iteration : {self.iteration} - rewards value test : {rewards_tests.mean()} - best value : {self.best_value}")
@@ -126,7 +134,6 @@ class CACLAVAR() :
                     
                 
     def get_action(self,state_t) :
-        epsilon = 0.1
         if self.exploration_strategy == "gaussian" :
             return torch.as_tensor(
                         np.array(
@@ -136,7 +143,8 @@ class CACLAVAR() :
                         dtype=torch.float32
                 )[0].detach().numpy()
         elif self.exploration_strategy == "egreedy" :
-            if np.random.rand() > epsilon :
+            self.epsilon = max(self.epsilon * self.epsilon_decay, self.epsilon_min)
+            if np.random.rand() > self.epsilon :
                 return self.actor_network(state_t).detach().numpy()
             else :
                 return torch.as_tensor(

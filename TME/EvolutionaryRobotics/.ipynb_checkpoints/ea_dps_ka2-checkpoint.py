@@ -42,6 +42,7 @@ import numpy as np
 from tqdm import tqdm
 import datetime
 
+from collections import deque
 from deap import algorithms
 from deap import base
 from deap import creator
@@ -149,7 +150,7 @@ ea_generic={
     'max_value': 1, # max genotype value
     'min_strategy': 0.01, # min value for the mutation
     'max_strategy': 0.2, # max value for the mutation
-    'nb_gen': 100, # number of generations
+    'nb_gen': 200, # number of generations
     'mu': 100, # population size
     'lambda': 200, # number of individuals generated
     'nov_k': 15, # k parameter of novelty search
@@ -183,6 +184,10 @@ ea_FIT_NS={
     'selection': 'FIT+NS', # can be either NS, FIT or FIT+NS
 }
 
+ea_NSLC={
+    'selection': 'NSLC', # can be either NS, FIT or FIT+NS
+}
+
 
 
 # Arm with NS
@@ -203,6 +208,12 @@ registered_envs["arm_FIT_NS"].update(arm_env1)
 registered_envs["arm_FIT_NS"].update(ea_generic)
 registered_envs["arm_FIT_NS"].update(ea_FIT_NS)
 
+# Arm with NSLC
+registered_envs["arm_NSLC"]={}
+registered_envs["arm_NSLC"].update(arm_env1)
+registered_envs["arm_NSLC"].update(ea_generic)
+registered_envs["arm_NSLC"].update(ea_NSLC)
+
 # Arm with RANDOM
 registered_envs["arm_RANDOM"]={}
 registered_envs["arm_RANDOM"].update(arm_env1)
@@ -212,9 +223,7 @@ registered_envs["arm_RANDOM"].update(ea_FIT)
 
 # change this variable to choose the environment you are interested in 
 # (one among the keys of registered_envs)
-env_name="arm_NS"
-
-
+env_name="arm_NSLC"
 
 
 if (registered_envs[env_name]['selection']=="FIT+NS"):
@@ -349,6 +358,8 @@ def launch_ea(mu=100, lambda_=200, cxpb=0.3, mutpb=0.7, ngen=100, verbose=False,
             ind.fitness.values=(ind.fit,)
         elif (registered_envs[env_name]['selection']=="NS"):
             ind.fitness.values=(ind.novelty,)
+        elif (registered_envs[env_name]['selection']=="NSLC"):
+            ind.fitness.values=(ind.novelty,ind.competition_local)
 
         #print("Fit=%f Nov=%f "%(ind.fit, ind.novelty)+" BD="+str(ind.bd))
 
@@ -364,7 +375,10 @@ def launch_ea(mu=100, lambda_=200, cxpb=0.3, mutpb=0.7, ngen=100, verbose=False,
 
 
     # Begin the generational process
-    for gen in range(1, ngen + 1):
+    
+    list_mean_fit = deque(maxlen=20)
+    
+    for gen in tqdm(range(1, ngen + 1)):
         finfo.write("## Generation %d \n"%(gen))
         finfo.flush()
         ffit.write("## Generation %d \n"%(gen))
@@ -425,6 +439,8 @@ def launch_ea(mu=100, lambda_=200, cxpb=0.3, mutpb=0.7, ngen=100, verbose=False,
                 ind.fitness.values=(ind.fit,)
             elif (registered_envs[env_name]['selection']=="NS"):
                 ind.fitness.values=(ind.novelty,)
+            elif (registered_envs[env_name]['selection']=="NSLC"):
+                ind.fitness.values=(ind.novelty,ind.competition_local)
 
             ##print("Fitness values: "+str(ind.fitness.values)+" Fit=%f Nov=%f"%(ind.fit, ind.novelty))
         
@@ -446,10 +462,12 @@ def launch_ea(mu=100, lambda_=200, cxpb=0.3, mutpb=0.7, ngen=100, verbose=False,
         """
         
         
-        best_angles = paretofront[0]
+        best_angles = paretofront[len(paretofront)-1]
         a = Arm(registered_envs[env_name]['eval_params']["lengths"], registered_envs[env_name]['eval_params']["walls"])
         v, configuration , inters = a.fw_kinematics(best_angles)
         
+        # print(paretofront)
+        # input()
         
         
         # print("\n",v, t , inters)
@@ -461,10 +479,10 @@ def launch_ea(mu=100, lambda_=200, cxpb=0.3, mutpb=0.7, ngen=100, verbose=False,
         # print("list fitness ; ",[individu.novelty for individu in population])
         
         
-        global_fitness = sum([individu.fitness.values[0] for individu in population]) / len(population)
+        global_fitness = ind.log[registered_envs[env_name]['watch_max']] # sum([individu.fitness.values[0] for individu in population]) / len(population)
         if abs(global_fitness) <= 0.5 and fitness_reached == None:
             fitness_reached = gen
-        # print(f"\ngénération {gen} - global fitness : {global_fitness}")
+        
         list_global_fitness.append(global_fitness)
         new_value = log['dist_end_effector']
 
@@ -473,32 +491,45 @@ def launch_ea(mu=100, lambda_=200, cxpb=0.3, mutpb=0.7, ngen=100, verbose=False,
         if (new_value > current_value):
             current_value = new_value
         
+        
+        # print("competition  : ",[individu.competition_local for individu in population])
+        
+        list_mean_fit.append(global_fitness)
+        # print(f"\ngénération {gen} - global fitness : {global_fitness} - evolution : {sum(list_mean_fit)/len(list_mean_fit)}")
         """
-        if abs(global_fitness) <= 0.5 and abs(global_fitness) > 0:
+        if abs(global_fitness) <= 0.5 and abs(global_fitness) > 0 or ngen == gen:
             cpt_config = 0
-            for configuration in list_configuration :
-                t_x = [p[0] for p in configuration]
-                t_y = [p[1] for p in configuration]
-            
-                # sauvegarde des configurations intermédiaires
-                plt.figure(figsize=(10,7))
-                plt.title("configuration d'un individu donné génération "+str(cpt_config))
-                plt.plot(t_x,t_y , label="configuration")
+            for i in range(len(list_configuration)) :
+                if i % 10 == 0 :
+                    t_x = [p[0] for p in list_configuration[i]]
+                    t_y = [p[1] for p in list_configuration[i]]
 
-                # affichage mur
-                plt.plot([-1,-1], [-1, 1],c="m")
-                plt.plot([-1,-3], [-1, -1],c="m")
-                plt.plot([-1,-3], [1, 1],c="m")
+                    # sauvegarde des configurations intermédiaires
+                    plt.figure(figsize=(10,7))
+                    plt.title("configuration d'un individu donné génération "+str(cpt_config))
+                    plt.plot(t_x,t_y , label="configuration")
 
-                plt.scatter([-2],[0] , s=500 , c = 'r' , label="target")
-                plt.legend()
-                plt.xlabel("x")
-                plt.ylabel("y")
-                name_save = "config_"+str(gen)+"_"+str(cpt_config)+".png"
-                plt.savefig(name_save)
-                cpt_config+=1
+                    # affichage mur
+                    plt.plot([-1,-1], [-1, 1],c="m")
+                    plt.plot([-1,-3], [-1, -1],c="m")
+                    plt.plot([-1,-3], [1, 1],c="m")
+
+                    plt.scatter([-2],[0] , s=500 , c = 'r' , label="target")
+                    plt.legend()
+                    plt.xlabel("x")
+                    plt.ylabel("y")
+                    name_save = "config_"+str(gen)+"_"+str(cpt_config)+".png"
+                    plt.savefig(name_save)
+                    cpt_config+=1
             break
         """
+        
+        
+        # question 3
+        #print(f"\ngénération {gen} - global fitness : {global_fitness}")
+        # if abs(global_fitness) <= 0.5 and abs(global_fitness) > 0:
+            # break
+        
         ########################################################################
 
 
@@ -525,7 +556,7 @@ if (__name__ == "__main__"):
     Test en batterie des resultats obtenue (cible atteinte ou non)
     Nombre de generation moyenne a atteindre 0.5
     """
-    
+    """
     nb_tests = 30
     list_result_generation = list()
     success = 0
@@ -551,7 +582,7 @@ if (__name__ == "__main__"):
     if len(list_result_generation) != 0 :
         print(f"resultats convergence moyenne de {list_result_generation.mean()} génération sur {len(list_result_generation)} echantillons")
     
-    
+    """
     
     
     """
@@ -571,6 +602,22 @@ if (__name__ == "__main__"):
 
     pop, logbook, paretofront, grid,list_global_fitness,fitness_reached = launch_ea(mu=mu, lambda_=lambda_, ngen=ngen, resdir=resdir)
     """
+    
+    
+    # Question : 3 Diversité des comportements générés
+    resdir="res_"+env_name+"_"+datetime.datetime.now().strftime("%Y_%m_%d_%H:%M:%S")
+    os.mkdir(resdir)
+    ngen=registered_envs[env_name]['nb_gen']
+    lambda_=registered_envs[env_name]['lambda']
+    mu=registered_envs[env_name]['mu']
+
+    with open(resdir+"/run_params.log", "w") as rf:
+        rf.write("env_name: "+env_name)
+        for k in registered_envs[env_name].keys():
+            rf.write(k+": "+str(registered_envs[env_name][k])+"\n")
+
+    pop, logbook, paretofront, grid,list_global_fitness,fitness_reached = launch_ea(mu=mu, lambda_=lambda_, ngen=ngen, resdir=resdir)
+    
     
     
     

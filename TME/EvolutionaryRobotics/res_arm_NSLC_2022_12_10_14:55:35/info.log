@@ -1,0 +1,101 @@
+## Generation 0 
+{'pos_end_effector': array([ 1.05004312, -0.26137872]), 'dist_end_effector': -3.06122228133553, 'collision': False}
+{'pos_end_effector': [0, 0], 'dist_end_effector': -1000000, 'collision': True}
+{'pos_end_effector': [0, 0], 'dist_end_effector': -1000000, 'collision': True}
+{'pos_end_effector': array([1.36085028, 5.17572727]), 'dist_end_effector': -6.171180393391997, 'collision': False}
+{'pos_end_effector': [0, 0], 'dist_end_effector': -1000000, 'collision': True}
+{'pos_end_effector': [0, 0], 'dist_end_effector': -1000000, 'collision': True}
+{'pos_end_effector': array([2.76804592, 3.93909791]), 'dist_end_effector': -6.1847194142121, 'collision': False}
+{'pos_end_effector': array([ 3.91069855, -1.73235016]), 'dist_end_effector': -6.159333925324931, 'collision': False}
+{'pos_end_effector': [0, 0], 'dist_end_effector': -1000000, 'collision': True}
+{'pos_end_effector': array([ 2.67065006, -0.87288962]), 'dist_end_effector': -4.751516422082016, 'collision': False}
+{'pos_end_effector': array([4.22469115, 0.6686093 ]), 'dist_end_effector': -6.260496647315743, 'collision': False}
+{'pos_end_effector': [0, 0], 'dist_end_effector': -1000000, 'collision': True}
+{'pos_end_effector': array([-2.06028302, -2.40309687]), 'dist_end_effector': -2.4038528713318, 'collision': False}
+{'pos_end_effector': array([3.39398129, 3.73562198]), 'dist_end_effector': -6.561242694897622, 'collision': False}
+{'pos_end_effector': array([-3.15554763,  4.63766029]), 'dist_end_effector': -4.779454290815658, 'collision': False}
+{'pos_end_effector': array([ 2.68092951, -2.07596991]), 'dist_end_effector': -5.1206202909580805, 'collision': False}
+{'pos_end_effector': [0, 0], 'dist_end_effector': -1000000, 'collision': True}
+{'pos_end_effector': array([ 1.38779096, -4.38757746]), 'dist_end_effector': -5.543280941127291, 'collision': False}
+{'pos_end_effector': array([0.14359809, 5.06081751]), 'dist_end_effector': -5.496079209514705, 'collision': False}
+{'pos_end_effector': array([-1.1880222 ,  2.95648988]), 'dist_end_effector': -3.065964828701466, 'collision': False}
+{'pos_end_effector': array([-0.94843369,  0.91275453]), 'dist_end_effector': -1.3924483954026516, 'collision': False}
+{'pos_end_effector': array([ 2.72935404, -2.17186833]), 'dist_end_effector': -5.204209991472282, 'collision': False}
+{'pos_end_effector': array([2.61043779, 1.4144057 ]), 'dist_end_effector': -4.822518026680254, 'collision': False}
+{'pos_end_effector': array([ 3.15874932, -1.66532849]), 'dist_end_effector': -5.420886787271702, 'collision': False}
+{'pos_end_effector': [0, 0], 'dist_end_effector': -1000000, 'collision': True}
+{'pos_end_effector': array([0.03618255, 1.9803787 ]), 'dist_end_effector': -2.8404117937072426, 'collision': False}
+{'pos_end_effector': [0, 0], 'dist_end_effector': -1000000, 'collision': True}
+{'pos_end_effector': array([0.74235609, 0.42774641]), 'dist_end_effector': -2.7755150715309367, 'collision': False}
+{'pos_end_effector': array([ 3.09641065, -2.68636416]), 'dist_end_effector': -5.761072286909121, 'collision': False}
+{'pos_end_effector': array([ 0.79263883, -4.58332772]), 'dist_end_effector': -5.367096484109071, 'collision': False}
+{'pos_end_effector': array([4.19630166, 1.06017827]), 'dist_end_effector': -6.286344900609414, 'collision': False}
+{'pos_end_effector': array([ 0.16159777, -2.80993266]), 'dist_end_effector': -3.545169452704321, 'collision': False}
+{'pos_end_effector': [0, 0], 'dist_end_effector': -1000000, 'collision': True}
+{'pos_end_effector': [0, 0], 'dist_end_effector': -1000000, 'collision': True}
+{'pos_end_effector': array([0.33700857, 3.84472949]), 'dist_end_effector': -4.499283713294809, 'collision': False}
+{'pos_end_effector': [0, 0], 'dist_end_effector': -1000000, 'collision': True}
+{'pos_end_effector': array([-4.05747878,  0.54956947]), 'dist_end_effector': -2.1296115925474446, 'collision': False}
+{'pos_end_effector': array([ 1.37398547, -5.12646048]), 'dist_end_effector': -6.137130848102056, 'collision': False}
+{'pos_end_effector': array([-1.83796297,  4.11363682]), 'dist_end_effector': -4.116826915055207, 'collision': False}
+{'pos_end_effector': array([2.43338377, 0.11998669]), 'dist_end_effector': -4.435007149325053, 'collision': False}
+{'pos_end_effector': array([ 3.73444824, -0.05088876]), 'dist_end_effector': -5.734674030463704, 'collision': False}
+{'pos_end_effector': array([ 2.04410487, -0.97608528]), 'dist_end_effector': -4.16023156209849, 'collision': False}
+{'pos_end_effector': array([ 2.71691071, -0.94742777]), 'dist_end_effector': -4.811119000188599, 'collision': False}
+{'pos_end_effector': [0, 0], 'dist_end_effector': -1000000, 'collision': True}
+{'pos_end_effector': array([-0.24281641,  2.87807939]), 'dist_end_effector': -3.3720965497493416, 'collision': False}
+{'pos_end_effector': array([3.19270868, 3.42481827]), 'dist_end_effector': -6.220418280547868, 'collision': False}
+{'pos_end_effector': [0, 0], 'dist_end_effector': -1000000, 'collision': True}
+{'pos_end_effector': array([-0.24697294, -0.29012332]), 'dist_end_effector': -1.7768723676924063, 'collision': False}
+{'pos_end_effector': array([ 0.5943673 , -2.67480699]), 'dist_end_effector': -3.726303008946107, 'collision': False}
+{'pos_end_effector': array([ 1.86399837, -0.75295773]), 'dist_end_effector': -3.936677375125274, 'collision': False}
+{'pos_end_effector': array([-1.02459362,  1.01326831]), 'dist_end_effector': -1.4064601969730592, 'collision': False}
+{'pos_end_effector': array([ 0.0459773 , -0.98757643]), 'dist_end_effector': -2.271856143046402, 'collision': False}
+{'pos_end_effector': array([ 1.3007071 , -1.35277996]), 'dist_end_effector': -3.5671670865566507, 'collision': False}
+{'pos_end_effector': array([ 4.28436165, -2.42444521]), 'dist_end_effector': -6.7358099696873746, 'collision': False}
+{'pos_end_effector': array([ 2.75932291, -0.31730103]), 'dist_end_effector': -4.769888311094709, 'collision': False}
+{'pos_end_effector': [0, 0], 'dist_end_effector': -1000000, 'collision': True}
+{'pos_end_effector': [0, 0], 'dist_end_effector': -1000000, 'collision': True}
+{'pos_end_effector': [0, 0], 'dist_end_effector': -1000000, 'collision': True}
+{'pos_end_effector': array([ 1.20801037, -2.41833785]), 'dist_end_effector': -4.01742311415948, 'collision': False}
+{'pos_end_effector': [0, 0], 'dist_end_effector': -1000000, 'collision': True}
+{'pos_end_effector': array([1.32069092, 4.15935957]), 'dist_end_effector': -5.322335971200086, 'collision': False}
+{'pos_end_effector': array([-1.82651684,  2.70361521]), 'dist_end_effector': -2.709175452084021, 'collision': False}
+{'pos_end_effector': [0, 0], 'dist_end_effector': -1000000, 'collision': True}
+{'pos_end_effector': [0, 0], 'dist_end_effector': -1000000, 'collision': True}
+{'pos_end_effector': [0, 0], 'dist_end_effector': -1000000, 'collision': True}
+{'pos_end_effector': [0, 0], 'dist_end_effector': -1000000, 'collision': True}
+{'pos_end_effector': array([ 3.72565313, -1.15325594]), 'dist_end_effector': -5.840642347318879, 'collision': False}
+{'pos_end_effector': array([3.41478572, 4.06815861]), 'dist_end_effector': -6.772726099962968, 'collision': False}
+{'pos_end_effector': array([1.40275502, 0.10020688]), 'dist_end_effector': -3.404230186706029, 'collision': False}
+{'pos_end_effector': [0, 0], 'dist_end_effector': -1000000, 'collision': True}
+{'pos_end_effector': array([-0.10314556,  0.91241424]), 'dist_end_effector': -2.1048887167681407, 'collision': False}
+{'pos_end_effector': array([-1.55759005, -3.34759789]), 'dist_end_effector': -3.3767052284213026, 'collision': False}
+{'pos_end_effector': [0, 0], 'dist_end_effector': -1000000, 'collision': True}
+{'pos_end_effector': array([-1.1992532 , -5.34705793]), 'dist_end_effector': -5.406683270918659, 'collision': False}
+{'pos_end_effector': array([5.21018437, 1.23825948]), 'dist_end_effector': -7.315739549673312, 'collision': False}
+{'pos_end_effector': array([1.17680419, 0.15654413]), 'dist_end_effector': -3.1806588774957225, 'collision': False}
+{'pos_end_effector': array([-0.14458294,  0.87574531]), 'dist_end_effector': -2.05170716930529, 'collision': False}
+{'pos_end_effector': array([0.00379869, 1.14685526]), 'dist_end_effector': -2.308784565635434, 'collision': False}
+{'pos_end_effector': array([ 5.2709114 , -0.05515707]), 'dist_end_effector': -7.271120606263825, 'collision': False}
+{'pos_end_effector': array([ 2.40762819, -0.18872235]), 'dist_end_effector': -4.411666621517481, 'collision': False}
+{'pos_end_effector': array([ 1.17061531, -0.02253119]), 'dist_end_effector': -3.1706953694603595, 'collision': False}
+{'pos_end_effector': array([-2.08458689,  3.18871683]), 'dist_end_effector': -3.1898385450495668, 'collision': False}
+{'pos_end_effector': [0, 0], 'dist_end_effector': -1000000, 'collision': True}
+{'pos_end_effector': array([ 1.47369542, -1.03057476]), 'dist_end_effector': -3.623347098751763, 'collision': False}
+{'pos_end_effector': [0, 0], 'dist_end_effector': -1000000, 'collision': True}
+{'pos_end_effector': [0, 0], 'dist_end_effector': -1000000, 'collision': True}
+{'pos_end_effector': [0, 0], 'dist_end_effector': -1000000, 'collision': True}
+{'pos_end_effector': [0, 0], 'dist_end_effector': -1000000, 'collision': True}
+{'pos_end_effector': array([ 0.21169094, -0.1423206 ]), 'dist_end_effector': -2.2162653238589627, 'collision': False}
+{'pos_end_effector': array([ 0.24371316, -1.62695701]), 'dist_end_effector': -2.771504615108405, 'collision': False}
+{'pos_end_effector': array([ 1.32660495, -0.00663923]), 'dist_end_effector': -3.3266115762675463, 'collision': False}
+{'pos_end_effector': [0, 0], 'dist_end_effector': -1000000, 'collision': True}
+{'pos_end_effector': [0, 0], 'dist_end_effector': -1000000, 'collision': True}
+{'pos_end_effector': [0, 0], 'dist_end_effector': -1000000, 'collision': True}
+{'pos_end_effector': [0, 0], 'dist_end_effector': -1000000, 'collision': True}
+{'pos_end_effector': array([ 1.58701797, -0.91142391]), 'dist_end_effector': -3.7009987125825026, 'collision': False}
+{'pos_end_effector': array([ 1.41643122, -3.65213967]), 'dist_end_effector': -5.0010125409277295, 'collision': False}
+{'pos_end_effector': array([5.8640981, 3.4125537]), 'dist_end_effector': -8.572605299749446, 'collision': False}
+{'pos_end_effector': array([-3.45839596, -5.44308355]), 'dist_end_effector': -5.635075625401699, 'collision': False}
+{'pos_end_effector': [0, 0], 'dist_end_effector': -1000000, 'collision': True}
