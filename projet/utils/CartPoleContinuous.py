@@ -13,6 +13,8 @@ class ContinuousCartPoleEnv(gym.Env):
 
     def __init__(self):
         
+        self.max_iteration = 1000
+        
         self.gravity = 9.8
         self.masscart = 1.0
         self.masspole = 0.1
