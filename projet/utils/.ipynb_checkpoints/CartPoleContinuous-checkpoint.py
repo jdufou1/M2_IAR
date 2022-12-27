@@ -14,7 +14,7 @@ class ContinuousCartPoleEnv(gym.Env):
     def __init__(self):
         
         self.max_iteration = 1000
-        
+        self.current_iteration = 0
         self.gravity = 9.8
         self.masscart = 1.0
         self.masspole = 0.1
@@ -77,6 +77,7 @@ class ContinuousCartPoleEnv(gym.Env):
         assert self.action_space.contains(action), \
             "%r (%s) invalid" % (action, type(action))
         """
+        self.current_iteration += 1
         # Cast action to float to strip np trappings
         force = self.force_mag * float(action)
         self.state = self.stepPhysics(force)
@@ -85,7 +86,7 @@ class ContinuousCartPoleEnv(gym.Env):
             or x > self.x_threshold \
             or theta < -self.theta_threshold_radians \
             or theta > self.theta_threshold_radians
-        done = bool(done)
+        done = bool(done) or self.current_iteration > self.max_iteration
 
         if not done:
             reward = 1.0
@@ -108,6 +109,7 @@ Any further steps are undefined behavior.
         return np.array(self.state), reward, done
 
     def reset(self):
+        self.current_iteration = 0
         self.state = self.np_random.uniform(low=-0.05, high=0.05, size=(4,))
         self.steps_beyond_done = None
         return np.array(self.state)
