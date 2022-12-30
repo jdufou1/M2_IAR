@@ -123,7 +123,6 @@ class CAC() :
     
     
     def get_action(self,state_t) :
-        epsilon = 0.1
         if self.exploration_strategy == "gaussian" :
             return torch.as_tensor(
                         np.array(
