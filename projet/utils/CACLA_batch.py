@@ -1,14 +1,18 @@
 """
-On-line version of CAC mentionned in the paper :
-Author : Jeremy DUFOURMANTELLE and Ethan ABITBOL
+Batch CACLA : Continuous Actor Critic Learning Automaton
+Implementation and reproduction of the CACLA algorithm used in the paper CACLA 
+src : https://dspace.library.uu.nl/bitstream/handle/1874/25514/wiering_07_reinforcementlearning.pdf
+developed by : Jérémy DUFOURMANTELLE and Ethan ABITBOL
 """
-
 import numpy as np
 import copy
+import random
 import torch
 import torch.nn as nn
 
-class CAC() :
+from collections import deque
+
+class CACLAbatch() :
     
     def __init__(
         self,
@@ -22,6 +26,8 @@ class CAC() :
         nb_episode : int,
         nb_tests : int,
         test_frequency : int,
+        batch_size : int,
+        size_replay_buffer : int,
         env,
         actor_network,
         critic_network,
@@ -39,6 +45,8 @@ class CAC() :
         self.nb_episode = nb_episode
         self.nb_tests = nb_tests
         self.test_frequency = test_frequency
+        self.batch_size = batch_size
+        self.size_replay_buffer = size_replay_buffer
         self.env = env
         self.actor_network = actor_network
         self.critic_network = critic_network
@@ -54,6 +62,9 @@ class CAC() :
         self.best_model = copy.deepcopy(self.actor_network)
         self.best_value = -1e10
         self.iteration = 0
+
+        self.replay_buffer = deque(maxlen=self.size_replay_buffer)
+
         
     def learning(self) : 
         
@@ -89,21 +100,38 @@ class CAC() :
                                 ) 
                                 - self.critic_network(state_t))
                 
-                # learning critic
-                loss_critic = - td_error.detach() * self.critic_network(state_t)
+                update = len(self.replay_buffer) >= self.batch_size 
+                if update:
+                    
+                    transitions = random.sample(self.replay_buffer , self.batch_size)
 
-                self.optimizer_critic.zero_grad()
-                loss_critic.backward()
-                self.optimizer_critic.step()
+                    states_t = torch.stack([t[0] for t in transitions])
+                    td_errors = torch.stack([t[5] for t in transitions])
+                    actions_t = torch.stack([t[2] for t in transitions])
 
-                action_t = torch.as_tensor(action , dtype=torch.float32)
 
-                # learning actor
-                loss_actor = - ( (action_t - self.actor_network(state_t).detach()) * self.actor_network(state_t) ).mean()
+                    # learning critic
+                    loss_critic = - td_errors.detach() * self.critic_network(states_t)
 
-                self.optimizer_actor.zero_grad()
-                loss_actor.backward()
-                self.optimizer_actor.step()
+                    self.optimizer_critic.zero_grad()
+                    loss_critic.backward()
+                    self.optimizer_critic.step()
+                
+                if td_error > 0 :
+                    
+                    action_t = torch.as_tensor(action , dtype=torch.float32)
+
+                    transition = (state_t , reward, action_t , new_state_t, done, td_error)
+                    self.replay_buffer.append(transition)
+
+                    if update : 
+
+                        # learning actor
+                        loss_actor = - ( (actions_t - self.actor_network(states_t).detach()) * self.actor_network(states_t) ).mean()
+
+                        self.optimizer_actor.zero_grad()
+                        loss_actor.backward()
+                        self.optimizer_actor.step()
                 
                 state = new_state
             
@@ -125,7 +153,7 @@ class CAC() :
                 if self.best_value < rewards_tests.mean() :
                     self.best_model.load_state_dict(self.actor_network.state_dict())
                     self.best_value = rewards_tests.mean()
-    
+                    
     
     def get_action(self,state_t) :
         if self.exploration_strategy == "gaussian" :
@@ -150,9 +178,9 @@ class CAC() :
                 )[0].detach().numpy()
         else :
             raise Exception("The exploration strategy must be gaussian or egreedy")
+    
+    
         
-        
-
     def test(self) :  
         
         list_rewards = list()

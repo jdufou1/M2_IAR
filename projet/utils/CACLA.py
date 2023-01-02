@@ -1,5 +1,5 @@
 """
-CACLA : Continuous Actor Critic
+On-line CACLA : Continuous Actor Critic Learning Automaton
 Implementation and reproduction of the CACLA algorithm used in the paper CACLA 
 src : https://dspace.library.uu.nl/bitstream/handle/1874/25514/wiering_07_reinforcementlearning.pdf
 developed by : Jérémy DUFOURMANTELLE and Ethan ABITBOL

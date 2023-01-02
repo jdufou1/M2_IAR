@@ -1,3 +1,10 @@
+"""
+On-line CACLA+VAR : Continuous Actor Critic Learning Automaton + VAR
+Implementation and reproduction of the CACLA algorithm used in the paper CACLA+VAR
+src : https://dspace.library.uu.nl/bitstream/handle/1874/25514/wiering_07_reinforcementlearning.pdf
+developed by : Jérémy DUFOURMANTELLE and Ethan ABITBOL
+"""
+
 import numpy as np
 import copy
 import torch
@@ -144,6 +151,7 @@ class CACLAVAR() :
                 )[0].detach().numpy()
         elif self.exploration_strategy == "egreedy" :
             self.epsilon = max(self.epsilon * self.epsilon_decay, self.epsilon_min)
+            # print(self.epsilon)
             if np.random.rand() > self.epsilon :
                 return self.actor_network(state_t).detach().numpy()
             else :
