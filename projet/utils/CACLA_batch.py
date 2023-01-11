@@ -100,8 +100,12 @@ class CACLAbatch() :
                                 ) 
                                 - self.critic_network(state_t))
                 
-                update = len(self.replay_buffer) >= self.batch_size 
-                if update:
+                action_t = torch.as_tensor(action , dtype=torch.float32)
+
+                transition = (state_t , reward, action_t , new_state_t, done, td_error)
+                self.replay_buffer.append(transition)
+                
+                if len(self.replay_buffer) > self.batch_size : 
                     
                     transitions = random.sample(self.replay_buffer , self.batch_size)
 
@@ -109,29 +113,21 @@ class CACLAbatch() :
                     td_errors = torch.stack([t[5] for t in transitions])
                     actions_t = torch.stack([t[2] for t in transitions])
 
-
+                    mask = (td_errors > 0).squeeze()
+                    
                     # learning critic
-                    loss_critic = - td_errors.detach() * self.critic_network(states_t)
+                    loss_critic = - (td_errors.detach() * self.critic_network(states_t)).mean()
 
                     self.optimizer_critic.zero_grad()
                     loss_critic.backward()
                     self.optimizer_critic.step()
-                
-                if td_error > 0 :
-                    
-                    action_t = torch.as_tensor(action , dtype=torch.float32)
+            
+                    # learning actor
+                    loss_actor = - ( (actions_t[mask] - self.actor_network(states_t[mask]).detach()) * self.actor_network(states_t[mask]) ).mean()
 
-                    transition = (state_t , reward, action_t , new_state_t, done, td_error)
-                    self.replay_buffer.append(transition)
-
-                    if update : 
-
-                        # learning actor
-                        loss_actor = - ( (actions_t - self.actor_network(states_t).detach()) * self.actor_network(states_t) ).mean()
-
-                        self.optimizer_actor.zero_grad()
-                        loss_actor.backward()
-                        self.optimizer_actor.step()
+                    self.optimizer_actor.zero_grad()
+                    loss_actor.backward()
+                    self.optimizer_actor.step()
                 
                 state = new_state
             
@@ -178,8 +174,6 @@ class CACLAbatch() :
                 )[0].detach().numpy()
         else :
             raise Exception("The exploration strategy must be gaussian or egreedy")
-    
-    
         
     def test(self) :  
         

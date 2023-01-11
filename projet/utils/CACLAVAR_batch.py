@@ -1,15 +1,19 @@
 """
-CACLA : Continuous Actor Critic
-Implementation and reproduction of the CACLA algorithm used in the paper CACLA 
+CACLA+VAR batch : Continuous Actor Critic Learning Automaton + VAR
+Implementation and reproduction of the CACLA algorithm used in the paper CACLA+VAR
 src : https://dspace.library.uu.nl/bitstream/handle/1874/25514/wiering_07_reinforcementlearning.pdf
 developed by : Jérémy DUFOURMANTELLE and Ethan ABITBOL
 """
+
 import numpy as np
 import copy
+import random
 import torch
 import torch.nn as nn
 
-class CACLA() :
+from collections import deque
+
+class CACLAVARbatch() :
     
     def __init__(
         self,
@@ -23,6 +27,8 @@ class CACLA() :
         nb_episode : int,
         nb_tests : int,
         test_frequency : int,
+        batch_size : int,
+        size_replay_buffer : int,
         env,
         actor_network,
         critic_network,
@@ -40,6 +46,8 @@ class CACLA() :
         self.nb_episode = nb_episode
         self.nb_tests = nb_tests
         self.test_frequency = test_frequency
+        self.size_replay_buffer = size_replay_buffer
+        self.batch_size = batch_size
         self.env = env
         self.actor_network = actor_network
         self.critic_network = critic_network
@@ -52,8 +60,12 @@ class CACLA() :
         self.optimizer_actor= torch.optim.Adam(self.actor_network.parameters(),lr=self.learning_rate_actor)
         self.optimizer_critic = torch.optim.Adam(self.critic_network.parameters(),lr=self.learning_rate_critic)
         
+        self.replay_buffer = deque(maxlen=self.size_replay_buffer)
+
         self.best_model = copy.deepcopy(self.actor_network)
         self.best_value = -1e10
+        self.var = 1.0
+        self.beta = 0.001
         self.iteration = 0
         
     def learning(self) : 
@@ -89,24 +101,43 @@ class CACLA() :
                                            self.critic_network(new_state_t)
                                 ) 
                                 - self.critic_network(state_t))
-                
-                # learning critic
-                loss_critic = - td_error.detach() * self.critic_network(state_t)
 
-                self.optimizer_critic.zero_grad()
-                loss_critic.backward()
-                self.optimizer_critic.step()
-                
-                if td_error > 0 :
+                action_t = torch.as_tensor(action , dtype=torch.float32)
+
+                transition = (state_t , reward, action_t , new_state_t, done, td_error)
+                self.replay_buffer.append(transition)
                     
-                    action_t = torch.as_tensor(action , dtype=torch.float32)
 
-                    # learning actor
-                    loss_actor = - ( (action_t - self.actor_network(state_t).detach()) * self.actor_network(state_t) ).mean()
+                if len(self.replay_buffer) > self.batch_size : 
+                    
+                    transitions = random.sample(self.replay_buffer , self.batch_size)
 
-                    self.optimizer_actor.zero_grad()
-                    loss_actor.backward()
-                    self.optimizer_actor.step()
+                    states_t = torch.stack([t[0] for t in transitions])
+                    td_errors = torch.stack([t[5] for t in transitions])
+                    actions_t = torch.stack([t[2] for t in transitions])
+
+                    mask = (td_errors > 0).squeeze()
+
+                    # update var
+                    self.var = (1-self.beta) * self.var + (self.beta*td_errors.detach().numpy()**2)
+                    
+                    # learning critic
+                    loss_critic = - (td_errors.detach() * self.critic_network(states_t)).mean()
+
+                    self.optimizer_critic.zero_grad()
+                    loss_critic.backward()
+                    self.optimizer_critic.step()
+
+                    nb_update = int(np.ceil((td_errors.detach().numpy() / np.sqrt(self.var)).mean()))
+            
+                    for _ in range(nb_update) : 
+
+                        # learning actor
+                        loss_actor = - ( (actions_t[mask] - self.actor_network(states_t[mask]).detach()) * self.actor_network(states_t[mask]) ).mean()
+
+                        self.optimizer_actor.zero_grad()
+                        loss_actor.backward()
+                        self.optimizer_actor.step()
                 
                 state = new_state
             
@@ -129,7 +160,7 @@ class CACLA() :
                     self.best_model.load_state_dict(self.actor_network.state_dict())
                     self.best_value = rewards_tests.mean()
                     
-    
+                
     def get_action(self,state_t) :
         if self.exploration_strategy == "gaussian" :
             return torch.as_tensor(
@@ -141,6 +172,7 @@ class CACLA() :
                 )[0].detach().numpy()
         elif self.exploration_strategy == "egreedy" :
             self.epsilon = max(self.epsilon * self.epsilon_decay, self.epsilon_min)
+            # print(self.epsilon)
             if np.random.rand() > self.epsilon :
                 return self.actor_network(state_t).detach().numpy()
             else :
@@ -152,9 +184,8 @@ class CACLA() :
                         dtype=torch.float32
                 )[0].detach().numpy()
         else :
-            raise Exception("The exploration strategy must be gaussian or egreedy")
-    
-    
+            raise Exception("The exploration strategy must be gaussian or egreedy")    
+        
         
     def test(self) :  
         
